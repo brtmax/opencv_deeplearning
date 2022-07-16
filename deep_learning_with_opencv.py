@@ -22,3 +22,22 @@ ap.add_argument("-l", "--labels", required=True, help="path to ImageNet labels (
 # Now we parse and store the arguments in a variable for easy access
 args = vars(ap.parse_args())
 
+# Load the input image from disk via cv2.imread
+image = cv2.imread(args["image"])
+
+# Examples of class label data
+# n01440764 tench, Tinca tinca
+# n01443537 goldfish, Carassius auratus
+# => Unique identifier + Space, some class labels and a new-line
+# This makes it easy to parse line by line
+
+# load the class labels from disk into a list
+rows = open(args["labels"]).read().strip().split("\n")
+classes = [r[r.find(" ") + 1:].split(",")[0] for r in rows]
+
+# Result is a list of class labels like this ['tench', 'goldfish']
+
+# Our CNN requires fixed spatial dimensions for our input images
+# So we need to ensure it is resized to 224 x 224 pixels while
+# performing mean subtraction (104, 117, 123) to normalize the input
+# After executing this command our "blob" now has the shape: (1, 3, 224, 224)
