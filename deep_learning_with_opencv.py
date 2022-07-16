@@ -41,3 +41,8 @@ classes = [r[r.find(" ") + 1:].split(",")[0] for r in rows]
 # So we need to ensure it is resized to 224 x 224 pixels while
 # performing mean subtraction (104, 117, 123) to normalize the input
 # After executing this command our "blob" now has the shape: (1, 3, 224, 224)
+blob = cv2.dnn.blobFromImage(image, 1 (224, 224), (104, 117, 123))
+
+# Blob = Binary Large Object, we use cv2.dnn.blobFromImage to perform mean subtraction
+# to normalize the input image which results in a known blob shape
+
