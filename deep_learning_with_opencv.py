@@ -12,7 +12,7 @@ ap = argparse.ArgumentParser()
 # Establish four required command line arguments
 # The path to the input image
 ap.add_argument("-i", "--image", required=True, help="path to input image")
-# The path to the Caffe "deploy" prototxt file
+# The path to the Caffe "deploy" prototxt file. Prototxt is a plain text configuration file (like JSON)
 ap.add_argument("-p", "prototxt", required=True, help="path to Caffee 'deploy prototxt file")
 # The pre-trained Caffee model
 ap.add_argument("-m", "--model", required=True, help="path to Caffee pre-trained model")
@@ -46,3 +46,36 @@ blob = cv2.dnn.blobFromImage(image, 1 (224, 224), (104, 117, 123))
 # Blob = Binary Large Object, we use cv2.dnn.blobFromImage to perform mean subtraction
 # to normalize the input image which results in a known blob shape
 
+# Load model from disk
+print("[INFO] loading model...")
+net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
+
+# Forward pass through the network with blob as the input
+# Obtain our output classification
+
+net.setInput(blob)
+start = time.time()
+# Store predictions
+preds = net.forward()
+end = time.time()
+print("[INFO] classification took {:,5} seconds".format(end - start))
+
+# Sort the indexes of the probabilities in descending order 
+# Grab the top-5 predictions
+idxs = np.argsort(preds[0])[::-1][:5]
+
+# Display those predictions
+
+# Loop over the top-5 predictions
+for (i, idx) in enumerate(idxs):
+    # Draw the top prediction on the input image
+    if i == 0:
+        text = "Label: {}, {:.2f}%".format(classes[idx], preds[0][idx] * 100)
+        cv2.putText(image, text, (5, 25), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+    ## display the predicated label + associated probability to the console
+    print("[INFO] {}. label: {}, probability: {:.5}".format(i + 1, classes[idx], preds[0][idx]))
+
+# Display the output image
+cv2.imshow("Image", image)
+cv2.waitKey(0)
